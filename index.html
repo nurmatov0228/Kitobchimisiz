@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="uz">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Kitob O‘qish Darajasi Testi</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family: Arial, Helvetica, sans-serif;
+                background: linear-gradient(135deg, #f5f7fb, #e9eef8);
+                color: #1f2937;
+            }
+            .container {
+                max-width: 760px;
+                margin: 40px auto;
+                background: #ffffff;
+                border-radius: 18px;
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+                padding: 28px;
+            }
+            h1 {
+                margin-top: 0;
+                font-size: 30px;
+                text-align: center;
+            }
+            .subtitle {
+                text-align: center;
+                color: #6b7280;
+                margin-bottom: 24px;
+            }
+            .field {
+                margin-bottom: 16px;
+            }
+            label {
+                display: block;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+            input[type="text"],
+            input[type="tel"] {
+                width: 100%;
+                padding: 12px 14px;
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                font-size: 15px;
+            }
+            .question {
+                margin-top: 28px;
+                padding: 18px;
+                border: 1px solid #e5e7eb;
+                border-radius: 14px;
+                background: #fafafa;
+            }
+            .question h3 {
+                margin: 0 0 14px;
+                font-size: 18px;
+            }
+            .options label {
+                display: block;
+                font-weight: 500;
+                margin: 10px 0;
+                padding: 12px;
+                border: 1px solid #dbe1ea;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: 0.2s;
+                background: #fff;
+            }
+            .options label:hover {
+                background: #f3f6fb;
+                border-color: #9ca3af;
+            }
+            .options input {
+                margin-right: 10px;
+            }
+            button {
+                width: 100%;
+                padding: 14px;
+                border: none;
+                border-radius: 12px;
+                background: #111827;
+                color: white;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                margin-top: 24px;
+            }
+            .result {
+                display: none;
+                margin-top: 28px;
+                padding: 22px;
+                border-radius: 14px;
+                background: #f3f8ff;
+                border: 1px solid #bfdbfe;
+            }
+            .error {
+                color: #b91c1c;
+                font-size: 14px;
+                margin-top: 12px;
+                font-weight: 700;
+            }
+            .success {
+                color: #166534;
+                font-size: 14px;
+                margin-top: 12px;
+                font-weight: 700;
+            }
+            .small {
+                color: #6b7280;
+                font-size: 14px;
+                margin-top: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📚 Kitob O‘qish Darajasi Testi</h1>
+            <p class="subtitle">
+                O‘qish odati, tushunish va fikrlash darajasini aniqlovchi mini
+                test
+            </p>
+
+            <div class="field">
+                <label for="fullname">Ism familiya</label>
+                <input
+                    type="text"
+                    id="fullname"
+                    placeholder="Masalan: Jasur Samadov"
+                />
+            </div>
+
+            <div class="field">
+                <label for="phone">Telefon raqam</label>
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="Masalan: +998 90 123 45 67"
+                />
+            </div>
+
+            <form id="testForm"></form>
+
+            <button type="button" onclick="calculateResult()">
+                Natijani ko‘rish va Telegramga yuborish
+            </button>
+            <div id="error" class="error"></div>
+            <div id="success" class="success"></div>
+            <div id="result" class="result"></div>
+        </div>
+
+        <script>
+            const questions = [
+                {
+                    q: "1. Oxirgi marta qachon kitob o‘qidingiz?",
+                    options: {
+                        A: "Bugun / kecha",
+                        B: "1 hafta ichida",
+                        C: "1 oy ichida",
+                        D: "Esimda yo‘q",
+                    },
+                },
+                {
+                    q: "2. Bir haftada necha kun kitob o‘qiysiz?",
+                    options: {
+                        A: "Har kuni",
+                        B: "3–4 kun",
+                        C: "1–2 kun",
+                        D: "Umuman o‘qimayman",
+                    },
+                },
+                {
+                    q: "3. Kuniga o‘rtacha qancha vaqt ajratasiz?",
+                    options: {
+                        A: "1 soatdan ko‘p",
+                        B: "30–60 min",
+                        C: "10–30 min",
+                        D: "0 min",
+                    },
+                },
+                {
+                    q: "4. O‘qiyotganda chalg‘imasdan davom eta olasizmi?",
+                    options: {
+                        A: "Ha, to‘liq",
+                        B: "Ba’zida",
+                        C: "Tez chalg‘iyman",
+                        D: "Umuman qiyin",
+                    },
+                },
+                {
+                    q: "5. Bu matndan asosiy g‘oya nima?",
+                    text: "Matn: Bir inson har kuni 10 bet kitob o‘qishni odat qildi. Avvaliga bu juda kichik tuyuldi. Ammo 1 yildan keyin u 3650 bet o‘qiganini anglab yetdi. Bu esa taxminan 10–15 ta kitob degani edi.",
+                    options: {
+                        A: "Ko‘p o‘qish qiyin",
+                        B: "Kichik odat katta natija beradi",
+                        C: "Kitoblar qimmat",
+                        D: "Har kuni o‘qish zerikarli",
+                    },
+                },
+                {
+                    q: "6. 10 bet kuniga o‘qisa, 1 oyda taxminan nechta bet bo‘ladi?",
+                    options: { A: "100", B: "200", C: "300", D: "500" },
+                },
+                {
+                    q: "7. Bu matn nimaga undaydi?",
+                    options: {
+                        A: "Dam olishga",
+                        B: "Sport qilishga",
+                        C: "Doimiy o‘qishga",
+                        D: "Pul ishlashga",
+                    },
+                },
+                {
+                    q: "8. Kitob o‘qish sizga nima beradi deb o‘ylaysiz?",
+                    options: {
+                        A: "Foydasi yo‘q",
+                        B: "Faqat bilim",
+                        C: "Fikrlashni o‘zgartiradi",
+                        D: "Bilmayman",
+                    },
+                },
+                {
+                    q: "9. Agar sizga 1 oy challenge berilsa (har kuni 10 bet), davom eta olasizmi?",
+                    options: {
+                        A: "Albatta",
+                        B: "Harakat qilaman",
+                        C: "Qiyin bo‘ladi",
+                        D: "Yo‘q",
+                    },
+                },
+                {
+                    q: "10. Qaysi variant sizga yaqin?",
+                    options: {
+                        A: "O‘qish — bu hayotimning bir qismi",
+                        B: "Ba’zida o‘qiyman",
+                        C: "Majburlashsa o‘qiyman",
+                        D: "Umuman yoqtirmayman",
+                    },
+                },
+            ];
+
+            const points = { A: 4, B: 3, C: 2, D: 1 };
+            const form = document.getElementById("testForm");
+
+            questions.forEach((item, index) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "question";
+
+                let html = `<h3>${item.q}</h3>`;
+                if (item.text) {
+                    html += `<p class="small"><strong>${item.text}</strong></p>`;
+                }
+                html += `<div class="options">`;
+
+                for (const key in item.options) {
+                    html += `
+          <label>
+            <input type="radio" name="q${index + 1}" value="${key}">
+            <strong>${key})</strong> ${item.options[key]}
+          </label>
+        `;
+                }
+
+                html += `</div>`;
+                wrapper.innerHTML = html;
+                form.appendChild(wrapper);
+            });
+
+            async function calculateResult() {
+                const fullname = document
+                    .getElementById("fullname")
+                    .value.trim();
+                const phone = document.getElementById("phone").value.trim();
+                const error = document.getElementById("error");
+                const success = document.getElementById("success");
+                const result = document.getElementById("result");
+
+                error.textContent = "";
+                success.textContent = "";
+                result.style.display = "none";
+
+                if (!fullname || !phone) {
+                    error.textContent =
+                        "Iltimos, ism familiya va telefon raqamni kiriting.";
+                    return;
+                }
+
+                let total = 0;
+                const answers = [];
+
+                for (let i = 1; i <= questions.length; i++) {
+                    const selected = document.querySelector(
+                        `input[name="q${i}"]:checked`,
+                    );
+                    if (!selected) {
+                        error.textContent = `${i}-savolga javob belgilanmagan.`;
+                        return;
+                    }
+                    answers.push(`Q${i}: ${selected.value}`);
+                    total += points[selected.value];
+                }
+
+                let level = "";
+                let comment = "";
+
+                if (total >= 30) {
+                    level = "📚 Kuchli o‘quvchi";
+                    comment = "Sizda kitob o‘qish odati yaxshi shakllangan.";
+                } else if (total >= 20) {
+                    level = "📖 O‘rtacha daraja";
+                    comment = "Sizda qiziqish bor, lekin tizim yetishmaydi.";
+                } else if (total >= 10) {
+                    level = "⚠️ Past daraja";
+                    comment = "Kitob o‘qish odati hali shakllanmagan.";
+                } else {
+                    level = "❌ O‘qish odati shakllanmagan";
+                    comment = "Sizga kichik boshlanish va motivatsiya kerak.";
+                }
+
+                result.innerHTML = `
+        <h2>Natija</h2>
+        <p><strong>Ism familiya:</strong> ${fullname}</p>
+        <p><strong>Telefon:</strong> ${phone}</p>
+        <p><strong>Jami ball:</strong> ${total}</p>
+        <p><strong>Daraja:</strong> ${level}</p>
+        <p><strong>Tahlil:</strong> ${comment}</p>
+        <p><strong>Javoblar:</strong> ${answers.join(", ")}</p>
+      `;
+                result.style.display = "block";
+
+                try {
+                    const response = await fetch("/sendResult", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            fullname,
+                            phone,
+                            total,
+                            level,
+                            comment,
+                            answers,
+                        }),
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        success.textContent =
+                            "Natija Telegram botga yuborildi.";
+                    } else {
+                        error.textContent =
+                            "Telegramga yuborishda xatolik bo‘ldi.";
+                    }
+                } catch (e) {
+                    error.textContent =
+                        "Server bilan ulanishda xatolik bo‘ldi.";
+                }
+            }
+        </script>
+    </body>
+</html>
