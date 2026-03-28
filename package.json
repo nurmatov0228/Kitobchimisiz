@@ -1,7 +1,8 @@
 {
-  "dependencies": {
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "node-fetch": "^3.3.2"
-  }
+  "name": "telegram-project",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {}
 }
