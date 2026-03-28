@@ -45,14 +45,25 @@
 // app.listen(3000, () => console.log("Server 3000-portda ishlayapti"));
 
 
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { fullname, phone, total, level, comment, answers = [] } = req.body;
+  // Body ni serverless uchun to'g'ri parse qilish
+  let body = {};
+  try {
+    body = await new Promise((resolve, reject) => {
+      let data = "";
+      req.on("data", chunk => data += chunk);
+      req.on("end", () => resolve(JSON.parse(data)));
+      req.on("error", err => reject(err));
+    });
+  } catch (err) {
+    return res.status(400).json({ error: "Invalid JSON" });
+  }
+
+  const { fullname, phone, total, level, comment, answers = [] } = body;
 
   const BOT_TOKEN = process.env.BOT_TOKEN;
   const CHAT_ID = process.env.CHAT_ID;
@@ -63,16 +74,17 @@ export default async function handler(req, res) {
 
   const message = `
 📚 Yangi test natijasi
-👤 Ism: ${fullname}
-📞 Telefon: ${phone}
-📊 Ball: ${total}
-🏷 Daraja: ${level}
-📝 Tahlil: ${comment}
+👤 Ism: ${fullname || "-"}
+📞 Telefon: ${phone || "-"}
+📊 Ball: ${total || "-"}
+🏷 Daraja: ${level || "-"}
+📝 Tahlil: ${comment || "-"}
 ✅ Javoblar:
-${answers.join("\n")}
+${Array.isArray(answers) ? answers.join("\n") : "-"}
 `;
 
   try {
+    // Node 18+ da fetch global
     const response = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
       {
